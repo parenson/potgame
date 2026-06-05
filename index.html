@@ -160,6 +160,13 @@
   select.psel:focus{outline:0;border-color:var(--brass)}
   .thcp{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:6px}
   .thcp b{color:var(--green-700)}
+  .xbtn{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--paper);
+    color:var(--red);font-size:15px;line-height:1;cursor:pointer;padding:0;transition:.15s}
+  .xbtn:hover{background:#fbeee9;border-color:#e2bcb4}
+  .rmteam{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;
+    border:1px solid var(--line);background:var(--paper);color:var(--red);font-size:13px;
+    line-height:1;cursor:pointer;padding:0;z-index:2;transition:.15s}
+  .rmteam:hover{background:#fbeee9;border-color:#e2bcb4}
 
   /* ---------- Buttons ---------- */
   .btn{font-family:'DM Sans';font-weight:700;font-size:13px;border-radius:9px;padding:9px 15px;
@@ -333,6 +340,19 @@ function App(){
   };
   const clearScores = () => { if(window.confirm('Clear all entered scores?')) setScores({}); };
 
+  const addTeam = () =>
+    setTeams(ts => [...ts, {id:'t'+Date.now(), name:'Team '+(ts.length+1), players:[null,null]}]);
+  const removeTeam = id =>
+    setTeams(ts => ts.length>1 ? ts.filter(t=>t.id!==id) : ts);
+  const addPlayer = () =>
+    setPlayers(ps => [...ps, {id:'p'+Date.now()+Math.floor(Math.random()*1000), name:'New Player', idx:0}]);
+  const removePlayer = id => {
+    setPlayers(ps => ps.length>1 ? ps.filter(p=>p.id!==id) : ps);
+    setTeams(ts => ts.map(t=>({...t, players: t.players.map(pid=> pid===id?null:pid)})));
+    setScores(s => { const n={...s}; delete n[id]; return n; });
+    setOverrides(o => { const n={...o}; delete n[id]; return n; });
+  };
+
   const assignedIds = new Set(teams.flatMap(t=>t.players).filter(Boolean));
 
   /* ---------- per-team results ---------- */
@@ -365,7 +385,8 @@ function App(){
     return [...valid].sort((x,y)=> x.total - y.total);
   },[results]);
 
-  const balanced = teams.every(t=>t.players[0]&&t.players[1]) && assignedIds.size===8;
+  const usedTeams = teams.filter(t=>t.players[0]||t.players[1]);
+  const balanced = usedTeams.length>0 && usedTeams.every(t=>t.players[0]&&t.players[1]);
 
   return (
     <div className="wrap">
@@ -392,7 +413,8 @@ function App(){
         players={players} setPlayer={setPlayer}
         overrides={overrides} setOverrides={setOverrides} effHcp={effHcp}
         teams={teams} assign={assign} assignedIds={assignedIds} playerById={playerById}
-        autoBalance={autoBalance} resetAll={resetAll} balanced={balanced} />}
+        autoBalance={autoBalance} resetAll={resetAll} balanced={balanced}
+        addTeam={addTeam} removeTeam={removeTeam} addPlayer={addPlayer} removePlayer={removePlayer} />}
 
       {tab==='scores' && <Scorecard
         teams={teams} playerById={playerById} effHcp={effHcp} scores={scores}
@@ -408,7 +430,7 @@ function App(){
 }
 
 /* ===================== SETUP ===================== */
-function Setup({players,setPlayer,overrides,setOverrides,effHcp,teams,assign,assignedIds,playerById,autoBalance,resetAll,balanced}){
+function Setup({players,setPlayer,overrides,setOverrides,effHcp,teams,assign,assignedIds,playerById,autoBalance,resetAll,balanced,addTeam,removeTeam,addPlayer,removePlayer}){
   return (<>
     <section className="panel">
       <p className="section-tag">Field & Handicaps</p>
@@ -421,6 +443,7 @@ function Setup({players,setPlayer,overrides,setOverrides,effHcp,teams,assign,ass
           <th>Player</th><th className="num">Handicap</th>
           <th className="num">Strokes Given</th>
           <th className="num">Override</th>
+          <th></th>
         </tr></thead>
         <tbody>
           {players.map(p=>{
@@ -441,18 +464,24 @@ function Setup({players,setPlayer,overrides,setOverrides,effHcp,teams,assign,ass
                       setOverrides(o=>{ const n={...o}; if(v==='') delete n[p.id]; else n[p.id]=Number(v); return n; });
                     }} />
                 </td>
+                <td className="num">
+                  <button className="xbtn" title={'Remove '+p.name} onClick={()=>removePlayer(p.id)}>×</button>
+                </td>
               </tr>
             );
           })}
         </tbody>
       </table>
       </div>
+      <div className="btn-row">
+        <button className="btn btn-ghost" onClick={addPlayer}>＋ Add player</button>
+      </div>
     </section>
 
     <section className="panel">
       <p className="section-tag">Pairings</p>
       <h2>The Teams</h2>
-      <p className="lead">Build four two-man teams. A player can only sit in one chair — assigned players drop out of the other menus.</p>
+      <p className="lead">Build your two-man teams — four by default, with an optional fifth (or more). A player can only sit in one chair, so assigned players drop out of the other menus.</p>
 
       <div className="team-grid">
         {teams.map((t,ti)=>{
@@ -460,6 +489,8 @@ function Setup({players,setPlayer,overrides,setOverrides,effHcp,teams,assign,ass
           const sum = ph.reduce((a,b)=>a+(b||0),0);
           return (
             <div className="team-card" key={t.id}>
+              {teams.length>1 &&
+                <button className="rmteam" title={'Remove '+t.name} onClick={()=>removeTeam(t.id)}>×</button>}
               <span className="tnum">{t.name}</span>
               <h3>{t.players[0]&&t.players[1]
                     ? `${playerById(t.players[0]).name} & ${playerById(t.players[1]).name}`
@@ -482,9 +513,10 @@ function Setup({players,setPlayer,overrides,setOverrides,effHcp,teams,assign,ass
       </div>
 
       {!balanced &&
-        <div className="warn">⚑ Each team needs two players (all eight assigned) before the scorecard fills in.</div>}
+        <div className="warn">⚑ Every team in play needs two players assigned before the scorecard fills in.</div>}
 
       <div className="btn-row">
+        <button className="btn btn-ghost" onClick={addTeam}>＋ Add team</button>
         <button className="btn btn-brass" onClick={autoBalance}>⚖︎ Auto-balance teams</button>
         <button className="btn btn-danger" onClick={resetAll}>Reset all</button>
       </div>

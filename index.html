@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Pot Game · Brentwood CC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,500&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-900:#0f2a20;
+    --green-800:#14342a;
+    --green-700:#1c4536;
+    --green-600:#2a5a45;
+    --green-glow:#3f7d61;
+    --cream:#f5efe0;
+    --cream-deep:#ece3cd;
+    --paper:#fbf7ec;
+    --ink:#1a2620;
+    --ink-soft:#46564d;
+    --brass:#bd9540;
+    --brass-bright:#d9b25a;
+    --line:#d8cdb0;
+    --line-soft:#e7dec6;
+    --red:#a23b2d;
+    --shadow:0 1px 2px rgba(15,42,32,.08), 0 8px 24px rgba(15,42,32,.10);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'DM Sans',-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(63,125,97,.18), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(189,149,64,.10), transparent 55%),
+      var(--green-900);
+    background-attachment:fixed;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 18px 80px}
+
+  /* ---------- Header ---------- */
+  header.masthead{
+    text-align:center;color:var(--cream);
+    padding:42px 12px 26px;
+  }
+  .crest{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:54px;height:54px;border-radius:50%;
+    border:2px solid var(--brass);color:var(--brass-bright);
+    font-family:'Fraunces',serif;font-weight:800;font-size:24px;
+    margin-bottom:14px;letter-spacing:-1px;
+    box-shadow:0 0 0 6px rgba(189,149,64,.10);
+  }
+  header.masthead .kicker{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.42em;
+    text-transform:uppercase;color:var(--brass-bright);margin:0 0 6px;
+    padding-left:.42em;
+  }
+  header.masthead h1{
+    font-family:'Fraunces',serif;font-weight:800;font-style:italic;
+    font-size:clamp(34px,6vw,58px);line-height:.95;margin:0;letter-spacing:-1px;
+  }
+  header.masthead .sub{
+    margin:14px auto 0;max-width:560px;color:rgba(245,239,224,.72);font-size:14.5px;
+  }
+  .course-strip{
+    display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center;
+    margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:11.5px;
+    color:rgba(245,239,224,.6);letter-spacing:.06em;
+  }
+  .course-strip b{color:var(--brass-bright);font-weight:600}
+
+  /* ---------- Tabs ---------- */
+  nav.tabs{
+    display:flex;gap:4px;justify-content:center;margin:8px auto 26px;
+    background:rgba(15,42,32,.55);border:1px solid rgba(189,149,64,.28);
+    padding:5px;border-radius:999px;max-width:430px;backdrop-filter:blur(6px);
+  }
+  nav.tabs button{
+    flex:1;border:0;background:transparent;color:rgba(245,239,224,.66);
+    font-family:'DM Sans',sans-serif;font-weight:700;font-size:13.5px;
+    padding:10px 6px;border-radius:999px;cursor:pointer;transition:.18s;
+    letter-spacing:.02em;
+  }
+  nav.tabs button:hover{color:var(--cream)}
+  nav.tabs button.active{
+    background:linear-gradient(180deg,var(--cream),var(--cream-deep));
+    color:var(--green-800);box-shadow:0 2px 8px rgba(0,0,0,.25);
+  }
+
+  /* ---------- Cards / paper ---------- */
+  .panel{
+    background:linear-gradient(180deg,var(--paper),var(--cream));
+    border:1px solid var(--line);border-radius:16px;
+    box-shadow:var(--shadow);padding:22px 22px 24px;margin-bottom:20px;
+    position:relative;overflow:hidden;
+    animation:rise .5s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .panel::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .panel > *{position:relative}
+  .panel h2{
+    font-family:'Fraunces',serif;font-weight:600;font-size:23px;margin:0 0 3px;
+    letter-spacing:-.3px;color:var(--green-800);
+  }
+  .panel .lead{color:var(--ink-soft);font-size:13.5px;margin:0 0 18px}
+  .section-tag{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.32em;
+    text-transform:uppercase;color:var(--brass);margin:0 0 4px;
+  }
+
+  /* ---------- Players & handicap table ---------- */
+  .toggle-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+  .seg{display:inline-flex;background:var(--cream-deep);border:1px solid var(--line);
+    border-radius:10px;padding:3px;gap:2px}
+  .seg button{border:0;background:transparent;font-family:'DM Sans';font-weight:700;
+    font-size:12.5px;padding:7px 12px;border-radius:7px;cursor:pointer;color:var(--ink-soft)}
+  .seg button.on{background:var(--green-700);color:var(--cream);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .hint{font-size:12px;color:var(--ink-soft);font-style:italic}
+
+  table{width:100%;border-collapse:collapse}
+  .ptable th{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ink-soft);text-align:left;padding:8px 10px;
+    border-bottom:2px solid var(--line);font-weight:600;
+  }
+  .ptable td{padding:8px 10px;border-bottom:1px solid var(--line-soft);font-size:14px;vertical-align:middle}
+  .ptable tr:last-child td{border-bottom:0}
+  .ptable td.num,.ptable th.num{text-align:center;font-family:'JetBrains Mono',monospace}
+  .name-in{font-family:'Fraunces',serif;font-weight:600;font-size:15.5px;color:var(--ink);
+    border:0;background:transparent;width:130px;border-bottom:1px dashed transparent;padding:2px 0}
+  .name-in:focus{outline:0;border-bottom:1px dashed var(--brass)}
+  .mini-in{width:46px;text-align:center;font-family:'JetBrains Mono',monospace;font-weight:600;
+    font-size:14px;border:1px solid var(--line);border-radius:7px;padding:5px 2px;background:var(--paper)}
+  .mini-in:focus{outline:0;border-color:var(--brass);box-shadow:0 0 0 3px rgba(189,149,64,.18)}
+  .chbadge{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:26px;
+    padding:0 7px;border-radius:7px;background:var(--green-700);color:var(--cream);
+    font-family:'JetBrains Mono',monospace;font-weight:800;font-size:13px}
+  .ovr{color:var(--brass);font-style:italic;font-size:11px;margin-left:5px}
+
+  /* ---------- Teams ---------- */
+  .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .team-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:15px 15px 16px;
+    position:relative;
+  }
+  .team-card .tnum{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;
+    color:var(--brass);text-transform:uppercase}
+  .team-card h3{font-family:'Fraunces',serif;font-weight:600;font-size:18px;margin:2px 0 12px}
+  .slot{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .slot .dot{width:7px;height:7px;border-radius:50%;background:var(--brass);flex:none}
+  select.psel{flex:1;font-family:'DM Sans';font-size:14px;font-weight:500;padding:8px 9px;
+    border:1px solid var(--line);border-radius:8px;background:var(--cream);color:var(--ink);cursor:pointer}
+  select.psel:focus{outline:0;border-color:var(--brass)}
+  .thcp{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:6px}
+  .thcp b{color:var(--green-700)}
+
+  /* ---------- Buttons ---------- */
+  .btn{font-family:'DM Sans';font-weight:700;font-size:13px;border-radius:9px;padding:9px 15px;
+    cursor:pointer;border:1px solid transparent;transition:.16s}
+  .btn-brass{background:linear-gradient(180deg,var(--brass-bright),var(--brass));color:#231a06;
+    box-shadow:0 2px 6px rgba(189,149,64,.4)}
+  .btn-brass:hover{transform:translateY(-1px)}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--ink-soft)}
+  .btn-ghost:hover{border-color:var(--brass);color:var(--green-700)}
+  .btn-danger{background:transparent;border-color:#e2bcb4;color:var(--red)}
+  .btn-danger:hover{background:#fbeee9}
+  .btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+
+  .warn{background:#fbeee9;border:1px solid #e2bcb4;color:var(--red);border-radius:9px;
+    padding:9px 13px;font-size:13px;margin-top:14px;display:flex;gap:8px;align-items:center}
+
+  /* ---------- Scorecard ---------- */
+  .scroller{overflow-x:auto;border-radius:12px;border:1px solid var(--line);background:var(--paper)}
+  .sc{border-collapse:collapse;width:100%;min-width:880px}
+  .sc th,.sc td{border:1px solid var(--line-soft);padding:0;text-align:center;font-family:'JetBrains Mono',monospace}
+  .sc thead th{background:var(--green-700);color:var(--cream);font-size:11px;font-weight:600;
+    padding:7px 4px;letter-spacing:.04em;position:sticky;top:0;z-index:2}
+  .sc .rowlabel{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);
+    background:var(--cream-deep);padding:6px 10px}
+  .sc .meta td{background:var(--cream-deep);color:var(--ink-soft);font-size:11px;font-weight:600;padding:5px 2px}
+  .sc .meta td.sum{background:#ddd2b4}
+  .sticky-l{position:sticky;left:0;z-index:3;text-align:left !important;
+    background:var(--cream);min-width:138px;padding:0 !important}
+  .sc thead th.sticky-l{background:var(--green-800);z-index:4}
+  .plabel{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;font-family:'DM Sans'}
+  .plabel .pn{font-family:'Fraunces',serif;font-weight:600;font-size:14px;text-align:left;letter-spacing:-.2px}
+  .plabel .ph{font-size:10px;color:var(--ink-soft);font-family:'JetBrains Mono'}
+  .teamband td{background:var(--green-800);color:var(--cream);text-align:left;padding:6px 10px;
+    font-family:'Fraunces',serif;font-weight:600;font-size:13.5px;letter-spacing:.2px}
+  .teamband td .tb-r{float:right;font-family:'JetBrains Mono';font-weight:800;color:var(--brass-bright);font-size:13px}
+  .scin{width:100%;height:38px;border:0;background:transparent;text-align:center;
+    font-family:'JetBrains Mono';font-weight:600;font-size:15px;color:var(--ink);padding:0}
+  .scin:focus{outline:0;background:rgba(189,149,64,.16)}
+  td.has-stroke{position:relative}
+  td.has-stroke::after{content:"";position:absolute;top:4px;right:4px;width:5px;height:5px;
+    border-radius:50%;background:var(--brass)}
+  td.has-stroke.s2::before{content:"";position:absolute;top:4px;right:11px;width:5px;height:5px;
+    border-radius:50%;background:var(--brass)}
+  td.outcol,td.incol,td.totcol{background:var(--cream-deep);font-weight:800;font-size:14px}
+  .net-pos{color:var(--green-700)} .net-over{color:var(--red)}
+
+  /* ---------- Results ---------- */
+  .board{display:flex;flex-direction:column;gap:12px}
+  .board-row{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:14px;
+    background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:13px 16px;transition:.18s}
+  .board-row.lead{border-color:var(--brass);box-shadow:0 0 0 2px rgba(189,149,64,.25);
+    background:linear-gradient(100deg,#fff8e8,var(--paper))}
+  .rank{font-family:'Fraunces',serif;font-weight:800;font-style:italic;font-size:26px;color:var(--brass);text-align:center}
+  .board-row.lead .rank{color:var(--green-700)}
+  .b-team{font-family:'Fraunces',serif;font-weight:600;font-size:18px}
+  .b-players{font-size:12.5px;color:var(--ink-soft);margin-top:1px}
+  .b-score{text-align:right}
+  .b-net{font-family:'JetBrains Mono';font-weight:800;font-size:24px;letter-spacing:-.5px}
+  .b-rel{font-family:'JetBrains Mono';font-size:12px;color:var(--ink-soft)}
+  .b-pay{font-family:'JetBrains Mono';font-weight:800;color:var(--green-700);font-size:14px;margin-top:2px}
+  .empty{text-align:center;color:var(--ink-soft);font-style:italic;padding:30px 10px;font-size:14px}
+  .pot-box{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:18px}
+  .pot-box label{font-family:'JetBrains Mono';font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+  .pot-in{width:120px;font-family:'JetBrains Mono';font-weight:700;font-size:16px;border:1px solid var(--line);
+    border-radius:9px;padding:9px 12px;background:var(--paper)}
+  .pot-in:focus{outline:0;border-color:var(--brass)}
+
+  .foot{text-align:center;color:rgba(245,239,224,.4);font-size:11.5px;
+    font-family:'JetBrains Mono';letter-spacing:.05em;margin-top:30px}
+  .foot b{color:rgba(217,178,90,.7)}
+
+  @media(max-width:560px){
+    .panel{padding:18px 14px 20px}
+    .board-row{grid-template-columns:34px 1fr auto;gap:9px;padding:11px 12px}
+    .b-net{font-size:20px}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const {useState, useMemo, useEffect} = React;
+
+/* ============ COURSE: Brentwood CC — Blue/White combo ============ */
+const SLOPE = 130, RATING = 71.7;
+const SI   = [12,14,8,4,16,2,18,6,10,11,3,13,9,5,15,1,17,7];   // hole stroke index (1=hardest)
+const PARS = [4,3,4,4,5,4,3,5,4,4,4,5,4,5,3,4,3,4];
+const DIST = [362,189,338,406,523,378,137,506,348,411,411,525,376,570,200,386,152,388];
+const PAR_TOTAL = PARS.reduce((a,b)=>a+b,0);                    // 72
+const HOLES = SI.map((si,i)=>({n:i+1, si, par:PARS[i], dist:DIST[i]}));
+
+const DEFAULT_PLAYERS = [
+  {id:'p1', name:'Wadler',   idx:10},
+  {id:'p2', name:'Schwab',   idx:9},
+  {id:'p3', name:'Raich',    idx:6},
+  {id:'p4', name:'Good',     idx:6},
+  {id:'p5', name:'Kawalsky', idx:5},
+  {id:'p6', name:'Arenson',  idx:4},
+  {id:'p7', name:'Wagman',   idx:4},
+  {id:'p8', name:'Eskovitz', idx:2},
+];
+const DEFAULT_TEAMS = [
+  {id:'t1', name:'Team 1', players:[null,null]},
+  {id:'t2', name:'Team 2', players:[null,null]},
+  {id:'t3', name:'Team 3', players:[null,null]},
+  {id:'t4', name:'Team 4', players:[null,null]},
+];
+
+/* ---- golf math ---- */
+// strokes a player with course handicap `ch` receives on a hole of stroke index `si`
+function strokesOnHole(ch, si){
+  if(ch === 0) return 0;
+  if(ch > 0){
+    const base = Math.floor(ch/18), rem = ch % 18;
+    return base + (si <= rem ? 1 : 0);
+  }
+  const g = -ch, base = Math.floor(g/18), rem = g % 18;       // plus handicap: give strokes back on easy holes
+  return -(base + ((19 - si) <= rem ? 1 : 0));
+}
+
+const STORE_KEY = 'potgame_brentwood_v1';
+const loadState = () => { try{ const r=localStorage.getItem(STORE_KEY); return r?JSON.parse(r):null }catch(e){return null} };
+const saveState = s => { try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)) }catch(e){} };
+
+function App(){
+  const saved = loadState();
+  const [tab, setTab]           = useState('setup');
+  const [players, setPlayers]   = useState(saved?.players ?? DEFAULT_PLAYERS);
+  const [teams, setTeams]       = useState(saved?.teams   ?? DEFAULT_TEAMS);
+  const [overrides, setOverrides]= useState(saved?.overrides ?? {});    // {pid: ch}
+  const [scores, setScores]     = useState(saved?.scores  ?? {});       // {pid:{holeIdx:gross}}
+  const [pot, setPot]           = useState(saved?.pot     ?? 0);
+  const [nineView, setNineView] = useState('all');                      // all | front | back
+
+  useEffect(()=>{ saveState({players,teams,overrides,scores,pot}); },
+            [players,teams,overrides,scores,pot]);
+
+  const playerById = id => players.find(p=>p.id===id);
+  // strokes used = the entered course handicap (or a manual override)
+  const effHcp = p => {
+    if(overrides[p.id] !== undefined && overrides[p.id] !== '' && overrides[p.id] !== null)
+      return Number(overrides[p.id]);
+    return Number(p.idx) || 0;
+  };
+
+  /* ---------- mutations ---------- */
+  const setPlayer = (id, field, val) =>
+    setPlayers(ps => ps.map(p => p.id===id ? {...p,[field]: field==='idx' ? (val===''?'':Number(val)) : val} : p));
+  const setScore = (pid, hIdx, val) => {
+    const clean = val.replace(/[^0-9]/g,'').slice(0,2);
+    setScores(s => ({...s, [pid]: {...(s[pid]||{}), [hIdx]: clean===''?undefined:Number(clean)}}));
+  };
+  const assign = (teamIdx, slot, pid) =>
+    setTeams(ts => ts.map((t,i)=> i===teamIdx ? {...t, players: t.players.map((p,s)=>s===slot? (pid||null):p)} : t));
+
+  const autoBalance = () => {
+    const sorted = [...players].sort((a,b)=> effHcp(a)-effHcp(b)); // low -> high
+    const pairs=[]; let i=0,j=sorted.length-1;
+    while(i<j){ pairs.push([sorted[i].id, sorted[j].id]); i++; j--; }
+    setTeams(ts => ts.map((t,k)=> ({...t, players: pairs[k] ? [pairs[k][0],pairs[k][1]] : [null,null]})));
+  };
+  const resetAll = () => {
+    if(!window.confirm('Reset everything — teams, scores and handicaps — to defaults?')) return;
+    setPlayers(DEFAULT_PLAYERS); setTeams(DEFAULT_TEAMS);
+    setOverrides({}); setScores({}); setPot(0);
+  };
+  const clearScores = () => { if(window.confirm('Clear all entered scores?')) setScores({}); };
+
+  const assignedIds = new Set(teams.flatMap(t=>t.players).filter(Boolean));
+
+  /* ---------- per-team results ---------- */
+  const results = useMemo(()=>{
+    return teams.map(t=>{
+      const [aId,bId] = t.players;
+      const a = aId?playerById(aId):null, b = bId?playerById(bId):null;
+      const complete = a && b;
+      const holeNet = []; let total=0, played=0, gross=0;
+      HOLES.forEach((h,i)=>{
+        const collect = pl => {
+          if(!pl) return null;
+          const g = scores[pl.id]?.[i];
+          if(g===undefined || g===null || g==='') return null;
+          return {gross:g, net: g - strokesOnHole(effHcp(pl), h.si), id:pl.id};
+        };
+        const ra = collect(a), rb = collect(b);
+        const opts = [ra,rb].filter(Boolean);
+        if(opts.length===0){ holeNet.push(null); return; }
+        const best = opts.reduce((m,x)=> x.net<m.net?x:m);
+        holeNet.push(best);
+        total += best.net; gross += best.gross; played++;
+      });
+      return {team:t, a, b, complete, holeNet, total, gross, played};
+    });
+  },[teams,scores,players,overrides]);
+
+  const ranked = useMemo(()=>{
+    const valid = results.filter(r=>r.complete && r.played>0);
+    return [...valid].sort((x,y)=> x.total - y.total);
+  },[results]);
+
+  const balanced = teams.every(t=>t.players[0]&&t.players[1]) && assignedIds.size===8;
+
+  return (
+    <div className="wrap">
+      <header className="masthead">
+        <div className="crest">B</div>
+        <p className="kicker">Net Best Ball · Two-Man Pot</p>
+        <h1>The Pot Game</h1>
+        <p className="sub">Brentwood Country Club — eight players, four teams, lowest net ball on every hole takes the line.</p>
+        <div className="course-strip">
+          <span>TEES <b>Blue / White</b></span>
+          <span>PAR <b>{PAR_TOTAL}</b></span>
+          <span>RATING <b>{RATING}</b></span>
+          <span>SLOPE <b>{SLOPE}</b></span>
+        </div>
+      </header>
+
+      <nav className="tabs">
+        {[['setup','Setup'],['scores','Scorecard'],['results','Results']].map(([k,l])=>(
+          <button key={k} className={tab===k?'active':''} onClick={()=>setTab(k)}>{l}</button>
+        ))}
+      </nav>
+
+      {tab==='setup' && <Setup
+        players={players} setPlayer={setPlayer}
+        overrides={overrides} setOverrides={setOverrides} effHcp={effHcp}
+        teams={teams} assign={assign} assignedIds={assignedIds} playerById={playerById}
+        autoBalance={autoBalance} resetAll={resetAll} balanced={balanced} />}
+
+      {tab==='scores' && <Scorecard
+        teams={teams} playerById={playerById} effHcp={effHcp} scores={scores}
+        setScore={setScore} results={results} nineView={nineView} setNineView={setNineView}
+        clearScores={clearScores} balanced={balanced} />}
+
+      {tab==='results' && <Results
+        ranked={ranked} results={results} pot={pot} setPot={setPot} />}
+
+      <p className="foot">Strokes allocated by hole handicap off the scorecard · <b>Saved automatically in this browser</b></p>
+    </div>
+  );
+}
+
+/* ===================== SETUP ===================== */
+function Setup({players,setPlayer,overrides,setOverrides,effHcp,teams,assign,assignedIds,playerById,autoBalance,resetAll,balanced}){
+  return (<>
+    <section className="panel">
+      <p className="section-tag">Field & Handicaps</p>
+      <h2>The Players</h2>
+      <p className="lead">These are course handicaps — each number is the strokes that player gets, spread across the hardest holes by stroke index. Edit a handicap directly, or use Override to give someone a different stroke count.</p>
+
+      <div style={{overflowX:'auto'}}>
+      <table className="ptable">
+        <thead><tr>
+          <th>Player</th><th className="num">Handicap</th>
+          <th className="num">Strokes Given</th>
+          <th className="num">Override</th>
+        </tr></thead>
+        <tbody>
+          {players.map(p=>{
+            const ch = effHcp(p);
+            const ovrActive = overrides[p.id]!==undefined && overrides[p.id]!=='' && overrides[p.id]!==null;
+            return (
+              <tr key={p.id}>
+                <td><input className="name-in" value={p.name} onChange={e=>setPlayer(p.id,'name',e.target.value)} /></td>
+                <td className="num">
+                  <input className="mini-in" value={p.idx} inputMode="numeric"
+                         onChange={e=>setPlayer(p.id,'idx',e.target.value)} />
+                </td>
+                <td className="num"><span className="chbadge">{ch}</span>{ovrActive && <span className="ovr">set</span>}</td>
+                <td className="num">
+                  <input className="mini-in" placeholder="–" value={overrides[p.id] ?? ''} inputMode="numeric"
+                    onChange={e=>{
+                      const v=e.target.value.replace(/[^0-9]/g,'');
+                      setOverrides(o=>{ const n={...o}; if(v==='') delete n[p.id]; else n[p.id]=Number(v); return n; });
+                    }} />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <section className="panel">
+      <p className="section-tag">Pairings</p>
+      <h2>The Teams</h2>
+      <p className="lead">Build four two-man teams. A player can only sit in one chair — assigned players drop out of the other menus.</p>
+
+      <div className="team-grid">
+        {teams.map((t,ti)=>{
+          const ph = t.players.map(id=> id?effHcp(playerById(id)):null);
+          const sum = ph.reduce((a,b)=>a+(b||0),0);
+          return (
+            <div className="team-card" key={t.id}>
+              <span className="tnum">{t.name}</span>
+              <h3>{t.players[0]&&t.players[1]
+                    ? `${playerById(t.players[0]).name} & ${playerById(t.players[1]).name}`
+                    : 'Open'}</h3>
+              {[0,1].map(slot=>(
+                <div className="slot" key={slot}>
+                  <span className="dot"></span>
+                  <select className="psel" value={t.players[slot]||''} onChange={e=>assign(ti,slot,e.target.value)}>
+                    <option value="">— select player —</option>
+                    {players.filter(p=> !assignedIds.has(p.id) || p.id===t.players[slot])
+                      .map(p=> <option key={p.id} value={p.id}>{p.name} ({effHcp(p)})</option>)}
+                  </select>
+                </div>
+              ))}
+              {t.players[0]&&t.players[1] &&
+                <div className="thcp">Combined strokes <b>{sum}</b></div>}
+            </div>
+          );
+        })}
+      </div>
+
+      {!balanced &&
+        <div className="warn">⚑ Each team needs two players (all eight assigned) before the scorecard fills in.</div>}
+
+      <div className="btn-row">
+        <button className="btn btn-brass" onClick={autoBalance}>⚖︎ Auto-balance teams</button>
+        <button className="btn btn-danger" onClick={resetAll}>Reset all</button>
+      </div>
+    </section>
+  </>);
+}
+
+/* ===================== SCORECARD ===================== */
+function Scorecard({teams,playerById,effHcp,scores,setScore,results,nineView,setNineView,clearScores,balanced}){
+  const front = HOLES.slice(0,9), back = HOLES.slice(9,18);
+  const showFront = nineView==='all' || nineView==='front';
+  const showBack  = nineView==='all' || nineView==='back';
+
+  const headHoles = (
+    <>
+      {showFront && front.map(h=> <th key={'h'+h.n}>{h.n}</th>)}
+      {showFront && <th className="outcol">OUT</th>}
+      {showBack  && back.map(h=> <th key={'h'+h.n}>{h.n}</th>)}
+      {showBack  && <th className="incol">IN</th>}
+      <th className="totcol">TOT</th>
+    </>
+  );
+  const metaRow = (label, fn, cls='') => (
+    <tr className="meta">
+      <td className="sticky-l"><div className="rowlabel">{label}</div></td>
+      {showFront && front.map(h=> <td key={'f'+h.n} className={cls}>{fn(h)}</td>)}
+      {showFront && <td className="sum">{front.reduce((a,h)=>a+(Number(fn(h))||0),0)}</td>}
+      {showBack  && back.map(h=> <td key={'b'+h.n} className={cls}>{fn(h)}</td>)}
+      {showBack  && <td className="sum">{back.reduce((a,h)=>a+(Number(fn(h))||0),0)}</td>}
+      <td className="sum">{HOLES.reduce((a,h)=>a+(Number(fn(h))||0),0)}</td>
+    </tr>
+  );
+
+  return (
+    <section className="panel">
+      <p className="section-tag">Enter Gross Scores</p>
+      <h2>The Scorecard</h2>
+      <p className="lead">Type each player's gross score per hole. A <b>•</b> marks a hole where that player gets a stroke. The team's best (lowest) net on each hole is totalled in Results.</p>
+
+      <div className="toggle-row">
+        <div className="seg">
+          {[['all','All 18'],['front','Front'],['back','Back']].map(([k,l])=>(
+            <button key={k} className={nineView===k?'on':''} onClick={()=>setNineView(k)}>{l}</button>
+          ))}
+        </div>
+        <button className="btn btn-ghost" onClick={clearScores}>Clear scores</button>
+      </div>
+
+      {!balanced && <div className="warn" style={{marginTop:0,marginBottom:14}}>⚑ Finish assigning teams in Setup to see team totals. You can still enter scores below.</div>}
+
+      <div className="scroller">
+        <table className="sc">
+          <thead><tr><th className="sticky-l">Hole</th>{headHoles}</tr></thead>
+          <tbody>
+            {metaRow('Par', h=>h.par)}
+            {metaRow('Stroke Idx', h=>h.si)}
+            {teams.map((t,ti)=>{
+              const r = results[ti];
+              return (
+                <React.Fragment key={t.id}>
+                  <tr className="teamband"><td colSpan={1+ (showFront?10:0)+(showBack?10:0)} className="sticky-l" style={{textAlign:'left'}}>
+                    <span>{t.name}{r.complete?'':' · incomplete'}</span>
+                    {r.complete && <span className="tb-r">NET {r.total||0}</span>}
+                  </td></tr>
+                  {t.players.map((pid,slot)=>{
+                    if(!pid) return (
+                      <tr key={t.id+slot}><td className="sticky-l"><div className="plabel"><span className="pn" style={{color:'#9a9079',fontStyle:'italic'}}>empty</span></div></td>
+                        <td colSpan={(showFront?10:0)+(showBack?10:0)+1}></td></tr>
+                    );
+                    const p = playerById(pid); const ch = effHcp(p);
+                    const cell = h=>{
+                      const i=h.n-1; const g=scores[pid]?.[i];
+                      const st = strokesOnHole(ch,h.si);
+                      return (
+                        <td key={pid+h.n} className={(st>0?'has-stroke':'')+(st>1?' s2':'')}>
+                          <input className="scin" inputMode="numeric" value={g??''}
+                                 onChange={e=>setScore(pid,i,e.target.value)} />
+                        </td>
+                      );
+                    };
+                    const sumRange = arr => arr.reduce((a,h)=>a+(scores[pid]?.[h.n-1]||0),0);
+                    return (
+                      <tr key={pid}>
+                        <td className="sticky-l">
+                          <div className="plabel">
+                            <span className="pn">{p.name}</span>
+                            <span className="ph">{ch} str</span>
+                          </div>
+                        </td>
+                        {showFront && front.map(cell)}
+                        {showFront && <td className="outcol">{sumRange(front)||''}</td>}
+                        {showBack  && back.map(cell)}
+                        {showBack  && <td className="incol">{sumRange(back)||''}</td>}
+                        <td className="totcol">{sumRange(HOLES)||''}</td>
+                      </tr>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+/* ===================== RESULTS ===================== */
+function Results({ranked,results,pot,setPot}){
+  const potNum = Number(pot)||0;
+  // winners = lowest net; split pot among ties
+  const best = ranked.length? ranked[0].total : null;
+  const winners = ranked.filter(r=> r.total===best);
+  const share = winners.length? potNum/winners.length : 0;
+
+  return (<>
+    <section className="panel">
+      <p className="section-tag">Standings</p>
+      <h2>The Leaderboard</h2>
+      <p className="lead">Teams ranked by total net best-ball. Lowest score wins the pot.</p>
+
+      <div className="pot-box">
+        <label htmlFor="pot">Total Pot $</label>
+        <input id="pot" className="pot-in" inputMode="numeric" value={pot}
+               onChange={e=>setPot(e.target.value.replace(/[^0-9]/g,''))} placeholder="0" />
+        {potNum>0 && winners.length>0 &&
+          <span className="hint">Winner takes ${share.toLocaleString()}{winners.length>1?` (split ${winners.length} ways)`:''}.</span>}
+      </div>
+
+      {ranked.length===0
+        ? <div className="empty">No completed teams yet — assign two players per team and enter some scores.</div>
+        : <div className="board">
+            {ranked.map((r,i)=>{
+              const isLead = r.total===best;
+              const rel = r.total - PAR_TOTAL;
+              const relTxt = rel===0?'E':(rel>0?`+${rel}`:`${rel}`);
+              return (
+                <div className={'board-row'+(isLead?' lead':'')} key={r.team.id}>
+                  <div className="rank">{i+1}</div>
+                  <div>
+                    <div className="b-team">{r.team.name}</div>
+                    <div className="b-players">{r.a.name} &amp; {r.b.name}{r.played<18?` · thru ${r.played}`:''}</div>
+                    {isLead && potNum>0 && <div className="b-pay">${share.toLocaleString()}</div>}
+                  </div>
+                  <div className="b-score">
+                    <div className={'b-net '+(rel<=0?'net-pos':'net-over')}>{r.total}</div>
+                    <div className="b-rel">net · {relTxt} · gross {r.gross}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>}
+    </section>
+
+    <section className="panel">
+      <p className="section-tag">Hole by Hole</p>
+      <h2>Best Ball Detail</h2>
+      <p className="lead">The net score counted for each team on every hole.</p>
+      <div className="scroller">
+        <table className="sc">
+          <thead><tr><th className="sticky-l">Team</th>
+            {HOLES.map(h=><th key={h.n}>{h.n}</th>)}<th className="totcol">NET</th></tr></thead>
+          <tbody>
+            <tr className="meta"><td className="sticky-l"><div className="rowlabel">Par</div></td>
+              {HOLES.map(h=><td key={h.n}>{h.par}</td>)}<td className="sum">{PAR_TOTAL}</td></tr>
+            {results.filter(r=>r.complete).map(r=>(
+              <tr key={r.team.id}>
+                <td className="sticky-l"><div className="plabel"><span className="pn">{r.team.name}</span></div></td>
+                {r.holeNet.map((hn,i)=>(
+                  <td key={i} style={hn?{fontWeight:700}:{color:'#bdb293'}}>{hn?hn.net:'–'}</td>
+                ))}
+                <td className="totcol">{r.total}</td>
+              </tr>
+            ))}
+            {results.filter(r=>r.complete).length===0 &&
+              <tr><td className="sticky-l"><div className="rowlabel">—</div></td>
+                <td colSpan={19} style={{padding:'16px',fontStyle:'italic',color:'#9a9079'}}>Assign full teams to see detail.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </>);
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

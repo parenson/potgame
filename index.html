@@ -673,7 +673,7 @@ function Results({ranked,results,pot,setPot}){
               {HOLES.map(h=><td key={h.n}>{h.par}</td>)}<td className="sum">{PAR_TOTAL}</td></tr>
             {results.filter(r=>r.complete).map(r=>(
               <tr key={r.team.id}>
-                <td className="sticky-l"><div className="plabel"><span className="pn">{r.team.name}</span></div></td>
+                <td className="sticky-l"><div className="plabel" style={{flexDirection:'column',alignItems:'flex-start',gap:'1px'}}><span className="pn">{r.team.name}</span><span className="ph">{r.a.name} &amp; {r.b.name}</span></div></td>
                 {r.holeNet.map((hn,i)=>(
                   <td key={i} style={hn?{fontWeight:700}:{color:'#bdb293'}}>{hn?hn.net:'–'}</td>
                 ))}

@@ -314,7 +314,7 @@ function App(){
   const setPlayer = (id, field, val) =>
     setPlayers(ps => ps.map(p => p.id===id ? {...p,[field]: field==='idx' ? (val===''?'':Number(val)) : val} : p));
   const setScore = (pid, hIdx, val) => {
-    const clean = val.replace(/[^0-9]/g,'').slice(0,2);
+    const clean = val.replace(/[^0-9]/g,'').slice(0,1);
     setScores(s => ({...s, [pid]: {...(s[pid]||{}), [hIdx]: clean===''?undefined:Number(clean)}}));
   };
   const assign = (teamIdx, slot, pid) =>
@@ -498,6 +498,25 @@ function Scorecard({teams,playerById,effHcp,scores,setScore,results,nineView,set
   const showFront = nineView==='all' || nineView==='front';
   const showBack  = nineView==='all' || nineView==='back';
 
+  // ---- auto-advance: build the tab order of score inputs and jump after each entry ----
+  const inputs = React.useRef(new Map());
+  const holeIdxs = nineView==='front' ? [0,1,2,3,4,5,6,7,8]
+                 : nineView==='back'  ? [9,10,11,12,13,14,15,16,17]
+                 : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
+  const seq = teams.flatMap(t=>t.players).filter(Boolean)
+                   .flatMap(pid => holeIdxs.map(h => pid+'-'+h));
+  const focusNext = (pid,i) => {
+    const idx = seq.indexOf(pid+'-'+i);
+    if(idx<0) return;
+    const el = inputs.current.get(seq[(idx+1)%seq.length]);
+    if(el){ el.focus(); el.select(); }
+  };
+  const handleEntry = (pid,i,val) => {
+    const d = val.replace(/[^1-9]/g,'').slice(-1);   // single digit, newest keystroke wins
+    setScore(pid,i,d);
+    if(d) requestAnimationFrame(()=>focusNext(pid,i));
+  };
+
   const headHoles = (
     <>
       {showFront && front.map(h=> <th key={'h'+h.n}>{h.n}</th>)}
@@ -522,7 +541,7 @@ function Scorecard({teams,playerById,effHcp,scores,setScore,results,nineView,set
     <section className="panel">
       <p className="section-tag">Enter Gross Scores</p>
       <h2>The Scorecard</h2>
-      <p className="lead">Type each player's gross score per hole. A <b>•</b> marks a hole where that player gets a stroke. The team's best (lowest) net on each hole is totalled in Results.</p>
+      <p className="lead">Type each player's gross score per hole — the cursor jumps to the next hole automatically, and rolls to the next player after hole 18. A <b>•</b> marks a hole where that player gets a stroke. The team's best (lowest) net on each hole is totalled in Results.</p>
 
       <div className="toggle-row">
         <div className="seg">
@@ -560,8 +579,10 @@ function Scorecard({teams,playerById,effHcp,scores,setScore,results,nineView,set
                       const st = strokesOnHole(ch,h.si);
                       return (
                         <td key={pid+h.n} className={(st>0?'has-stroke':'')+(st>1?' s2':'')}>
-                          <input className="scin" inputMode="numeric" value={g??''}
-                                 onChange={e=>setScore(pid,i,e.target.value)} />
+                          <input className="scin" inputMode="numeric" maxLength={1}
+                                 ref={el=>{ const k=pid+'-'+i; if(el) inputs.current.set(k,el); else inputs.current.delete(k); }}
+                                 value={g??''} onFocus={e=>e.target.select()}
+                                 onChange={e=>handleEntry(pid,i,e.target.value)} />
                         </td>
                       );
                     };
